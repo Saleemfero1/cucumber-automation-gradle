@@ -31,8 +31,7 @@ jobs:
           distribution: adopt
 
       - name: 'Execute Automation Testing'
-        run: |
-          ./gradlew test
+        run: gradle test
 
       # - name: 'Upload Test Report'
       #   uses: actions/upload-artifact@v3.1.2
