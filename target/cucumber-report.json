@@ -1,0 +1,161 @@
+[
+  {
+    "line": 1,
+    "elements": [
+      {
+        "start_timestamp": "2023-11-28T07:22:54.376Z",
+        "before": [
+          {
+            "result": {
+              "duration": 4597000,
+              "status": "passed"
+            },
+            "match": {
+              "location": "com.dcsg.oso.rlmcucumber.common.CucumberSpringConfiguration.setUp(io.cucumber.java.Scenario)"
+            }
+          }
+        ],
+        "line": 5,
+        "name": "user login",
+        "description": "",
+        "id": "recommerce-flows;user-login",
+        "after": [
+          {
+            "result": {
+              "duration": 266000,
+              "status": "passed"
+            },
+            "match": {
+              "location": "com.dcsg.oso.rlmcucumber.common.CucumberSpringConfiguration.tearUp(io.cucumber.java.Scenario)"
+            }
+          }
+        ],
+        "type": "scenario",
+        "keyword": "Scenario",
+        "steps": [
+          {
+            "result": {
+              "duration": 1622000,
+              "status": "passed"
+            },
+            "line": 6,
+            "name": "user navigated to login page",
+            "match": {
+              "location": "com.dcsg.oso.rlmcucumber.stepdef.TestStepDef.login_page()"
+            },
+            "keyword": "Given "
+          },
+          {
+            "result": {
+              "duration": 866000,
+              "status": "passed"
+            },
+            "line": 7,
+            "name": "user enters \"cucumber\" and \"12345\"",
+            "match": {
+              "arguments": [
+                {
+                  "val": "\"cucumber\"",
+                  "offset": 12
+                },
+                {
+                  "val": "\"12345\"",
+                  "offset": 27
+                }
+              ],
+              "location": "com.dcsg.oso.rlmcucumber.stepdef.TestStepDef.userDetails(java.lang.String,java.lang.String)"
+            },
+            "keyword": "When "
+          }
+        ],
+        "tags": [
+          {
+            "name": "@test"
+          }
+        ]
+      },
+      {
+        "start_timestamp": "2023-11-28T07:22:54.419Z",
+        "before": [
+          {
+            "result": {
+              "duration": 294000,
+              "status": "passed"
+            },
+            "match": {
+              "location": "com.dcsg.oso.rlmcucumber.common.CucumberSpringConfiguration.setUp(io.cucumber.java.Scenario)"
+            }
+          }
+        ],
+        "line": 11,
+        "name": "login to the application",
+        "description": "",
+        "id": "recommerce-flows;login-to-the-application",
+        "after": [
+          {
+            "result": {
+              "duration": 353000,
+              "status": "passed"
+            },
+            "match": {
+              "location": "com.dcsg.oso.rlmcucumber.common.CucumberSpringConfiguration.tearUp(io.cucumber.java.Scenario)"
+            }
+          }
+        ],
+        "type": "scenario",
+        "keyword": "Scenario",
+        "steps": [
+          {
+            "result": {
+              "duration": 269000,
+              "status": "passed"
+            },
+            "line": 12,
+            "name": "user navigated to login page",
+            "match": {
+              "location": "com.dcsg.oso.rlmcucumber.stepdef.TestStepDef.login_page()"
+            },
+            "keyword": "Given "
+          },
+          {
+            "result": {
+              "duration": 18742000,
+              "status": "passed"
+            },
+            "line": 13,
+            "name": "user enters username and password",
+            "match": {
+              "location": "com.dcsg.oso.rlmcucumber.stepdef.TestStepDef.username(io.cucumber.datatable.DataTable)"
+            },
+            "rows": [
+              {
+                "cells": [
+                  "username",
+                  "password"
+                ]
+              },
+              {
+                "cells": [
+                  "{ab.username}",
+                  "{ab.password}"
+                ]
+              }
+            ],
+            "keyword": "When "
+          }
+        ],
+        "tags": [
+          {
+            "name": "@test"
+          }
+        ]
+      }
+    ],
+    "name": "Recommerce Flows",
+    "description": "",
+    "id": "recommerce-flows",
+    "keyword": "Feature",
+    "uri": "file:src/test/resources/features/rlm.feature",
+    "tags": []
+  }
+]

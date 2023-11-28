@@ -1,0 +1,247 @@
+import net.masterthought.cucumber.Configuration
+import net.masterthought.cucumber.ReportBuilder
+import net.masterthought.cucumber.sorting.SortingMethod
+import java.nio.file.Path
+import org.apache.commons.io.FileUtils;
+
+import java.nio.file.Files
+
+buildscript {
+
+    dependencies {
+        classpath "net.masterthought:cucumber-reporting:5.6.0"
+    }
+}
+
+plugins {
+    id 'org.springframework.boot' version '2.3.6.RELEASE'
+    id 'io.spring.dependency-management' version '1.0.10.RELEASE'
+    id 'java'
+    id 'idea'
+    id 'maven-publish'
+    id "com.diffplug.spotless" version "5.7.0"
+    id "application"
+//    id "se.thinkcode.cucumber-runner" version "0.0.8"
+}
+
+
+group = 'com.dcsg.oso'
+version = '0.0.0'
+sourceCompatibility = '11'
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+    [apiElements, runtimeElements].each {
+        it.outgoing.artifacts.removeIf { it.buildDependencies.getDependencies(null).contains(jar) }
+        it.outgoing.artifact(bootJar)
+    }
+    // Runtime uses log4j2, not standard logging
+    runtimeClasspath.exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
+
+    // Tests use standard logging, not log4j2
+    testRuntimeClasspath.exclude group: 'org.springframework.boot', module: 'spring-boot-starter-log4j2'
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven {
+        url "https://nexus.tools.dcsg.com/repository/order-sourcing"
+    }
+}
+
+ext {
+    set('springCloudServicesVersion', "2.3.0.RELEASE")
+    set('springCloudVersion', "Hoxton.SR9")
+}
+
+// remediate log4shell (CVE-2021-44228)
+ext['log4j2.version'] = '2.16.0'
+
+ext {
+    config = [
+            publish: [
+                    username: project.hasProperty('username') ? project.getProperty('username') : null,
+                    password: project.hasProperty('password') ? project.getProperty('password') : null,
+            ]
+    ]
+}
+
+dependencies {
+
+    implementation 'javax.validation:validation-api:2.0.0.Final'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    //	Cucumber
+    testImplementation 'io.cucumber:cucumber-core:6.10.4'
+    testImplementation 'io.cucumber:cucumber-java:6.10.4'
+    testImplementation 'io.cucumber:cucumber-spring:6.10.4'
+    testImplementation 'io.cucumber:cucumber-junit:6.10.4'
+
+    //Cucumber Report
+    testImplementation 'net.masterthought:cucumber-reporting:5.6.0'
+    testImplementation 'com.google.code.gson:gson:2.8.2'
+
+    // OpenApi
+    testImplementation "org.springdoc:springdoc-openapi-core:1.1.49"
+    testImplementation "org.springdoc:springdoc-openapi-ui:1.1.49"
+    testImplementation 'org.springframework.boot:spring-boot-starter-aop'
+    testImplementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
+
+    // Lombok -1
+    //    compileOnly 'org.projectlombok:lombok'
+    //    annotationProcessor 'org.projectlombok:lombok'
+    //    testAnnotationProcessor 'org.projectlombok:lombok'
+    compileOnly 'org.projectlombok:lombok:1.18.22'
+    annotationProcessor 'org.projectlombok:lombok:1.18.22'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.22'
+    testImplementation 'org.projectlombok:lombok'
+
+    //    rest-assured
+    testImplementation 'io.rest-assured:rest-assured:3.3.0'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "io.pivotal.spring.cloud:spring-cloud-services-dependencies:${springCloudServicesVersion}"
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
+}
+
+spotless {
+    java {
+        importOrder()
+        removeUnusedImports()
+        indentWithSpaces()
+        googleJavaFormat()
+    }
+}
+
+configurations {
+    cucumberRuntime {
+        extendsFrom testImplementation
+        extendsFrom annotationProcessor
+    }
+    all {
+        exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
+    }
+}
+
+def tags = (findProperty('tags') == null) ? 'not @CleanUp and not @NotExecuted' :
+        (findProperty('tags').toString().contains("@CleanUp")) ?
+                findProperty('tags') + ' and not @NotExecuted' : findProperty('tags') + ' and not @CleanUp and not @NotExecuted'
+//def buildNumber = (findProperty('v') == null) ? '1' : findProperty('v')
+
+task cucumber() {
+    dependsOn assemble, testClasses
+    doLast {
+//        javaexec {
+//            main = "io.cucumber.core.cli.Main"
+//            classpath = configurations.cucumberRuntime + sourceSets.main.output + sourceSets.test.output
+//            args = ['--plugin', 'pretty', '--plugin', 'json:target/cucumber-report.json', '--plugin', 'html:target/cucumber-report.html', '--glue', 'com.dcsg.oso.vofgcucumber', 'src/test/resources/features', '--tags', "${tags}"]
+//        }
+        generateReport()
+    }
+}
+
+def generateBuildNumber() {
+    String file = "${layout.projectDirectory}/src/test/resources/buildNumber";
+    Path pathName = Path.of(file);
+    def content = Files.readString(pathName)
+    println(content)
+    int sum = Integer.parseInt(content)+1;
+    //System.out.println(sum);
+
+    String incrementedValue = Integer.toString(sum);
+
+    Files.writeString(pathName,incrementedValue);
+
+    return incrementedValue;
+}
+
+
+def folderCreation(){
+
+     int currentVersion = 0, totalVersions = 3;
+      def INITIAL_FOLDER_PATH = "${layout.projectDirectory}/target/Reports/";
+      def FILE_NAME = "Version";
+    def finalFolderPath = INITIAL_FOLDER_PATH+FILE_NAME;
+    File folder = new File(INITIAL_FOLDER_PATH);
+    File[] folders=null;
+    if(!folder.exists()) {
+        folder.mkdir();
+        folders = folder.listFiles();
+        return finalFolderPath;
+    }
+    else{
+        folders = folder.listFiles();
+    }
+
+    if(folders!=null && folders.length==totalVersions)
+    {
+        finalFolderPath = INITIAL_FOLDER_PATH+FILE_NAME+1;
+        File deleteFolder = new File(finalFolderPath);
+        if (deleteFolder.exists()) {
+            FileUtils.deleteDirectory(deleteFolder);
+        }
+
+        folders = folder.listFiles();
+        int ver = 1;
+        for (int pos = 0; pos < folders.length; pos++) {
+            finalFolderPath = INITIAL_FOLDER_PATH+FILE_NAME+ver;
+            File renameFile = new File(finalFolderPath);
+            folders[pos].renameTo(renameFile);
+            ver++;
+        }
+        finalFolderPath = INITIAL_FOLDER_PATH+FILE_NAME+ver;
+        File createFolder = new File(finalFolderPath);
+        createFolder.mkdir();
+        return finalFolderPath;
+    }
+    else {
+        currentVersion=folders.length+1;
+        finalFolderPath = INITIAL_FOLDER_PATH+FILE_NAME+currentVersion;
+        File file = new File(finalFolderPath);
+        if(!file.exists())
+        {
+            file.mkdir();
+        }
+        return finalFolderPath;
+
+
+    }
+
+}
+
+
+def generateReport() {
+    String buildNumber ="0.0." +generateBuildNumber();
+    String finalFolderPath = folderCreation();
+    File reportOutputDirectory = new File(finalFolderPath);
+    reportOutputDirectory.deleteDir()
+
+    def jsonReports = fileTree(dir: "target").include '**/cucumber-*.json'.toString()
+    List<String> jsonReportFiles = new ArrayList<String>()
+    jsonReports.each { File file ->
+        jsonReportFiles.add("target/${file.name}".toString())
+    }
+
+    String projectName = project.name
+    Configuration configuration = new Configuration(reportOutputDirectory, projectName)
+    configuration.setBuildNumber(buildNumber)
+    configuration.setSortingMethod(SortingMethod.NATURAL)
+    configuration.addClassifications("Version", project.version.toString())
+    configuration.setTrendsStatsFile(new File("target/demo-trends.json"))
+
+    ReportBuilder reportBuilder = new ReportBuilder(jsonReportFiles, configuration)
+    reportBuilder.generateReports()
+
+    println("\nReport: file://" + reportOutputDirectory.getCanonicalPath() + "/cucumber-html-reports/overview-features.html")
+}
+
+tasks.distZip.enabled = false
+tasks.startScripts.enabled = false
+tasks.distTar.enabled = false

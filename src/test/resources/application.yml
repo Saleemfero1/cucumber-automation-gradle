@@ -1,0 +1,14 @@
+cucumber:
+  publish:
+    enabled: false
+    quiet: true
+  options:
+    version: 1
+    features: src/test/resources/features
+    glue: com.dcsg.oso.capacitycucumber
+    plugin: pretty, json:target/cucumber-report.json, html:target/cucumber-report.html
+    monochrome: true
+    stepNotifications: true
+service:
+  recomm-service:
+    host: https://recommerce-service-dev.apps.an01.pcf.dcsg.com

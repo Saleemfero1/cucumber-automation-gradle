@@ -1,0 +1,165 @@
+<html>
+
+<head>
+
+    <title>Version Report</title>
+
+    <style>
+
+    body{
+
+        background-color:#fff;
+
+    }
+
+    .header{
+
+        border: 2px solid #000 ;
+
+        margin-top: 10px;
+
+        font-size: 25px;
+
+        color:black;
+
+        text-align:center;
+
+    }
+
+    .versions-block{
+
+        display: flex;
+
+        justify-content: center;
+
+        flex-direction: column;
+
+        margin-top: 20px;
+
+    }
+
+    .blocks{
+
+        padding: 10px;
+
+        border: 2px solid #000 ;
+
+        width: 30%;
+
+        text-align: center;
+
+    }
+
+    .blocks a {
+
+         color:black;
+
+         font-size: 30px;
+
+    }
+
+    .blocks p{
+
+        color: #000;
+
+        margin: 5% 0;
+
+    }
+
+
+
+
+
+
+    </style>
+
+    <script>
+
+    var path = "../target/Reports/Version1";
+	var elementID = "version";
+
+    function checkFileExist(urlToFile) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', urlToFile, false);
+        xhr.send();
+
+        if (xhr.status == "404") {
+        return false;
+        } else {
+        return true;
+        }
+    }
+
+    function loop(){
+
+    for(var i=1;i<=3;i++) {
+		 var result = checkFileExist("../target/Reports/Version"+i+"/cucumber-html-reports/overview-features.html");
+		 var x = document.getElementById(elementID+i);
+		 if (result == true) {
+		 x.style.display = 'block';
+		 } else {
+		 x.style.display = 'none';
+		 }
+
+    }
+
+}
+    </script>
+
+</head>
+
+<body onload="loop()">
+
+<div class="header">
+
+    <h2> RLM Cucumber Report </h2>
+
+</div>
+
+<div class="versions-block">
+
+    <div class="blocks" id="version3">
+
+        <a href="..\target\Reports\Version3\cucumber-html-reports\overview-features.html">Version3</a>
+
+        <p>
+
+            Latest Test Reports will be shown here
+
+        </p>
+
+
+    </div>
+
+    <div class="blocks" id="version2">
+
+        <a href="..\target\Reports\Version2\cucumber-html-reports\overview-features.html">Version2</a>
+
+        <p>
+
+            Secondary Test Reports will be shown here
+
+        </p>
+
+
+    </div>
+
+    <div class="blocks" id="version1">
+
+        <a href="..\target\Reports\Version1\cucumber-html-reports\overview-features.html">Version1</a>
+
+        <p>
+
+            Initial Test Reports will be shown here.
+
+        </p>
+
+
+    </div>
+
+</div>
+
+
+</body>
+
+</html>
